@@ -1,0 +1,40 @@
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+    gateway:
+      # 網關全局跨域配置
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            allowCredentials: true
+        # 解決options請求被攔截的問題
+        add-to-simple-url-handler-mapping: true
+      routes:
+        - id: test_route
+          uri: https://github.com/
+          predicates:
+            - Query=url,github'
+        - id: product_route
+          uri: lb://gulimall-product
+          predicates:
+            - Path=/api/product/**
+          filters:
+            - RewritePath=/api/?(?<segment>.*), /$\{segment}
+        - id: admin_route
+          uri: lb://renren-fast
+          predicates:
+            - Path=/api/** #前端發起以/api開頭
+          filters:
+            - RewritePath=/api/?(?<segment>.*), /renren-fast/$\{segment} #將/api開頭轉為/renren-fast開頭
+
+##前端項目
+##admin_route http://localhost:88/api/captcha.jpg 經過gateway轉換成 http://localhost:8080/renren-fast/captcha.jpg 進行訪問
+##product_route http://localhost:88/api/product/category/list/tree http://localhost:11000/product/category/list/tree
+server:
+  port: 88
+
