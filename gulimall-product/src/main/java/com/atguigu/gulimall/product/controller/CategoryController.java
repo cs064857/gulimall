@@ -26,7 +26,7 @@ import com.atguigu.common.utils.R;
  * @date 2024-07-25 23:26:16
  */
 @RestController
-@RequestMapping("/")
+@RequestMapping("product/category")
 public class CategoryController {
     @Autowired
     private CategoryService categoryService;
@@ -80,7 +80,7 @@ public class CategoryController {
     }
 
     /**
-     * 删除
+     * 删除 (使用MP邏輯刪除)
      */
     @RequestMapping("/delete")
     public R delete(@RequestBody Long[] catIds){

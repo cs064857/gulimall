@@ -19,12 +19,21 @@ spring:
           uri: https://github.com/
           predicates:
             - Query=url,github'
+
+        - id: third_party_route
+          uri: lb://gulimall-third-party
+          predicates:
+            - Path=/api/thirdparty/**
+          filters:
+            - RewritePath=/api/?(?<segment>.*), /$\{segment}
+
         - id: product_route
           uri: lb://gulimall-product
           predicates:
             - Path=/api/product/**
           filters:
             - RewritePath=/api/?(?<segment>.*), /$\{segment}
+
         - id: admin_route
           uri: lb://renren-fast
           predicates:
@@ -35,6 +44,11 @@ spring:
 ##前端項目
 ##admin_route http://localhost:88/api/captcha.jpg 經過gateway轉換成 http://localhost:8080/renren-fast/captcha.jpg 進行訪問
 ##product_route http://localhost:88/api/product/category/list/tree http://localhost:11000/product/category/list/tree
+##third_party_route:
+  #原始請求（未經過網關）: http://localhost:30000/thirdparty/download?fileName=test.png
+  #經過網關的請求 URL（外部訪問） http://localhost:88/api/thirdparty/download?fileName=test.png
+  #網關轉發後的內部 URL http://localhost:30000/thirdparty/download?fileName=test.png
+
 server:
   port: 88
 

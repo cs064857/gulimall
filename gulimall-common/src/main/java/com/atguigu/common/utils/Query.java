@@ -1,9 +1,9 @@
 /**
- * Copyright (c) 2016-2019 人人开源 All rights reserved.
+ * Copyright (c) 2016-2019 人人開源 All rights reserved.
  *
  * https://www.renren.io
  *
- * 版权所有，侵权必究！
+ * 版權所有，侵權必究！
  */
 
 package com.atguigu.common.utils;
@@ -16,7 +16,7 @@ import org.apache.commons.lang.StringUtils;
 import java.util.Map;
 
 /**
- * 查询参数
+ * 查詢參數
  *
  * @author Mark sunlightcs@gmail.com
  */
@@ -27,7 +27,7 @@ public class Query<T> {
     }
 
     public IPage<T> getPage(Map<String, Object> params, String defaultOrderField, boolean isAsc) {
-        //分页参数
+        //分頁參數
         long curPage = 1;
         long limit = 10;
 
@@ -38,14 +38,14 @@ public class Query<T> {
             limit = Long.parseLong((String)params.get(Constant.LIMIT));
         }
 
-        //分页对象
+        //分頁對象
         Page<T> page = new Page<>(curPage, limit);
 
-        //分页参数
+        //分頁參數
         params.put(Constant.PAGE, page);
 
         //排序字段
-        //防止SQL注入（因为sidx、order是通过拼接SQL实现排序的，会有SQL注入风险）
+        //防止SQL注入（因為sidx、order是通過拼接SQL實現排序的，會有SQL注入風險）
         String orderField = SQLFilter.sqlInject((String)params.get(Constant.ORDER_FIELD));
         String order = (String)params.get(Constant.ORDER);
 
@@ -58,7 +58,7 @@ public class Query<T> {
             }
         }
 
-        //默认排序
+        //默認排序
         if(isAsc) {
             page.setAsc(defaultOrderField);
         }else {

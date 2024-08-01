@@ -1,0 +1,21 @@
+#server:
+#  port: 30000
+#spring:
+#  cloud:
+#    nacos:
+#      discovery:
+#        server-addr: 127.0.0.1
+# 配置minio
+minio:
+  server: http://192.168.91.131
+  port: 9000
+  endpoint: ${minio.server}:${minio.port}
+  access-key: minioadmin  # minio账号
+  secret-key: minioadmin  # minio密码
+  bucket: gulimall  # 指定桶名
+spring:
+  datasource:
+    username: root
+    password: root
+    url: jdbc:mysql://192.168.91.131:3306/gulimall_pms?useUnicode=true&serverTimezone=UTC&characterEncoding=UTF8
+    driver-class-name: com.mysql.jdbc.Driver
