@@ -40,6 +40,7 @@ public class AttrGroupController {
 //     */
 //    @RequestMapping("/list")
 //    public R list(@RequestParam Map<String, Object> params){
+//        System.out.println("catelogId參數1");
 //        PageUtils page = attrGroupService.queryPage(params);
 //
 //        return R.ok().put("page", page);
@@ -50,8 +51,8 @@ public class AttrGroupController {
      */
     @RequestMapping("/list/{catelogId}")
     public R listByCategoryId(@RequestParam Map<String, Object> params,@PathVariable("catelogId") Long catelogId){
+        System.out.println("catelogId參數:"+catelogId);
         PageUtils page = attrGroupService.queryPage(params,catelogId);
-
         return R.ok().put("page", page);
     }
 

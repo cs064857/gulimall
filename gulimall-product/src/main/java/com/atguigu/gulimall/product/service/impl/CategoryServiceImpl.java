@@ -1,6 +1,9 @@
 package com.atguigu.gulimall.product.service.impl;
 
+import com.atguigu.gulimall.product.entity.CategoryBrandRelationEntity;
+import com.atguigu.gulimall.product.service.CategoryBrandRelationService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -19,6 +22,17 @@ import com.atguigu.gulimall.product.service.CategoryService;
 
 @Service("categoryService")
 public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity> implements CategoryService {
+    @Autowired
+    private CategoryBrandRelationService categoryBrandRelationService;
+    @Override
+    public void updateCascade(CategoryEntity category) {
+        updateById(category);
+        ////修改品牌關係分類表,保證冗余字段數據一致
+        categoryBrandRelationService.updateCategory(category.getCatId(),category.getName());
+
+
+    }
+
     @Override
     public void removeMenuByIds(List<Long> list) {
         //TODO 1、檢查當前刪除的菜單,是否被別的地方引用

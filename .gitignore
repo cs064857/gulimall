@@ -25,9 +25,5 @@ replay_pid*
 **/mvnw.cmd
 **/mvnw
 
-**/.mvn
-**/target/
-
-.idea
 
 **/.gitignore

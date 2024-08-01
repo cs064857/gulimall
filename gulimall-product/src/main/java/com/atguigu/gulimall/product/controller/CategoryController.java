@@ -70,11 +70,11 @@ public class CategoryController {
     }
 
     /**
-     * 修改
+     * 修改及修改品牌關聯分類關係表
      */
     @RequestMapping("/update")
     public R update(@RequestBody CategoryEntity category){
-		categoryService.updateById(category);
+		categoryService.updateCascade(category);
 
         return R.ok();
     }
