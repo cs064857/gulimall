@@ -3,6 +3,7 @@ package com.atguigu.gulimall.product.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.atguigu.gulimall.product.vo.AttrRespVo;
 import com.atguigu.gulimall.product.vo.AttrVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,9 +35,13 @@ public class AttrController {
     /**
      * 列表
      */
-    @RequestMapping("/list")
-    public R list(@RequestParam Map<String, Object> params){
-        PageUtils page = attrService.queryPage(params);
+    //方法重複利用
+    // "/base/list/{catelogId}"為規則參數
+    // "/sale/list/{catelogId}"為銷售屬性
+
+    @RequestMapping("/{attrType}/list/{catelogId}")
+    public R list(@RequestParam Map<String, Object> params,@PathVariable("catelogId") Long catelogId,@PathVariable("attrType") String attrType){
+        PageUtils page = attrService.queryPage(params,catelogId,attrType);
 
         return R.ok().put("page", page);
     }
@@ -47,7 +52,7 @@ public class AttrController {
      */
     @RequestMapping("/info/{attrId}")
     public R info(@PathVariable("attrId") Long attrId){
-		AttrEntity attr = attrService.getById(attrId);
+		AttrRespVo attr = attrService.getAttrInfo(attrId);
 
         return R.ok().put("attr", attr);
     }
@@ -66,8 +71,8 @@ public class AttrController {
      * 修改
      */
     @RequestMapping("/update")
-    public R update(@RequestBody AttrEntity attr){
-		attrService.updateById(attr);
+    public R update(@RequestBody AttrVo attrVo){
+		attrService.updateAttr(attrVo);
 
         return R.ok();
     }

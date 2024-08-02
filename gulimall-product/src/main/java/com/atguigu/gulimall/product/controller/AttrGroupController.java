@@ -4,14 +4,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import com.atguigu.gulimall.product.entity.AttrEntity;
 import com.atguigu.gulimall.product.service.impl.CategoryServiceImpl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.atguigu.gulimall.product.entity.AttrGroupEntity;
 import com.atguigu.gulimall.product.service.AttrGroupService;
@@ -27,6 +25,7 @@ import com.atguigu.common.utils.R;
  * @email passerby064857@gmail.com
  * @date 2024-07-23 21:10:02
  */
+@Slf4j
 @RestController
 @RequestMapping("product/attrgroup")
 public class AttrGroupController {
@@ -35,17 +34,17 @@ public class AttrGroupController {
     @Autowired
     private CategoryServiceImpl categoryService;
 
-//    /**
-//     * 列表
-//     */
-//    @RequestMapping("/list")
-//    public R list(@RequestParam Map<String, Object> params){
-//        System.out.println("catelogId參數1");
-//        PageUtils page = attrGroupService.queryPage(params);
-//
-//        return R.ok().put("page", page);
-//    }
 
+
+    /**
+     * 列表 屬性分組(attrgroup)與屬性(attr)關聯分類
+     */
+    @GetMapping("/{attrGroupId}/attr/relation")
+    public R getRelationList(@PathVariable("attrGroupId") Long attrGroupId){
+        log.info("路徑/{attrGroupId}/attr/relation,參數:attrGroupId:{}",attrGroupId);
+        List<AttrEntity> attrEntity =attrGroupService.getAttrRelationList(attrGroupId);
+        return R.ok().put("data",attrEntity);
+    }
     /**
      * 根據菜單ID查菜單列表
      */
