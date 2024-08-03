@@ -122,9 +122,10 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         //查出數據
         IPage<AttrEntity> iPage = this.page(new Query<AttrEntity>().getPage(params, "attr_id", true), wrapper);
         PageUtils pageUtils = new PageUtils(iPage);
-        log.info("iPage:{}", pageUtils);
+        log.info("pageUtils.getList:{}", pageUtils.getList());
         //查出並設置冗於字段attr_group_name與catelog_name
         List<AttrEntity> records = iPage.getRecords();
+
         List<AttrRespVo> respVoList = records.stream().map((attrEntity -> {
             //透過pms_attr表中的catelogId字段查詢,表pms_attr_group:attr_group_name字段與表pms_category:catelog_name,
             //並利用Vo封裝傳遞給前端
@@ -133,26 +134,67 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
             BeanUtils.copyProperties(attrEntity, attrRespVo);
             //1、根據catelogId獲取pms_category:catelog_name,並賦值給vo中的catelogName屬性
             CategoryEntity categoryEntity = categoryDao.selectById(attrEntity.getCatelogId());
-            if (categoryEntity != null) {
-                attrRespVo.setCatelogName(categoryEntity.getName());
-            }
-
+            attrRespVo.setCatelogName(categoryEntity.getName());
+            log.info("categoryEntity:{}",categoryEntity);
+            log.info("attrRespVo:{}",attrRespVo);
             //2.1、根據attrId查詢attr_group_id
             //若是base(規則參數的話需要設定所屬分組),若是sale的話沒有所屬分組因此不需要設置
-            if (attrType.equalsIgnoreCase("base")) {
+            if (attrRespVo.getAttrType()==ProductConstant.AttrEnum.ATTR_TYPE_BASE.getCode()) {
                 LambdaQueryWrapper<AttrAttrgroupRelationEntity> relationWrapper = new LambdaQueryWrapper<>();
                 relationWrapper.eq(AttrAttrgroupRelationEntity::getAttrId, attrEntity.getAttrId());
-                AttrAttrgroupRelationEntity attrGroupId = attrAttrgroupRelationDao.selectOne(relationWrapper);
-                if (attrGroupId != null) {
-                    //2.2再根據attr_group_id查詢attr_group_name
-                    LambdaQueryWrapper<AttrGroupEntity> attrGroupWrapper = new LambdaQueryWrapper<>();
-                    attrGroupWrapper.eq(AttrGroupEntity::getAttrGroupId, attrGroupId.getAttrGroupId());
-                    AttrGroupEntity attrGroupEntity = attrGroupDao.selectOne(attrGroupWrapper);
-                    attrRespVo.setAttrGroupName(attrGroupEntity.getAttrGroupName());
-                }
+                Optional.ofNullable(attrAttrgroupRelationDao.selectOne(relationWrapper))
+                        .ifPresent(attrGroupId->{
+                            log.info("attrGroupId:{}",attrGroupId);
+                            if(attrGroupId.getAttrGroupId()!=null){
+                                //2.2再根據attr_group_id查詢attr_group_name
+                                LambdaQueryWrapper<AttrGroupEntity> attrGroupWrapper = new LambdaQueryWrapper<>();
+                                attrGroupWrapper.eq(AttrGroupEntity::getAttrGroupId, attrGroupId.getAttrGroupId());
+                                System.out.println("測試到達");
+                                AttrGroupEntity attrGroupEntity = attrGroupDao.selectOne(attrGroupWrapper);
+                                if(attrGroupEntity.getAttrGroupId()!=null){
+                                    log.info("attrGroupEntity:{}",attrGroupEntity);
+                                    attrRespVo.setAttrGroupName(attrGroupEntity.getAttrGroupName());
+                                }
+                            }
+                        });
             }
             return attrRespVo;
         })).collect(Collectors.toList());
+        System.out.println("測試到達2");
+
+
+
+//        List<AttrRespVo> respVoList = records.stream().map((attrEntity -> {
+//            //透過pms_attr表中的catelogId字段查詢,表pms_attr_group:attr_group_name字段與表pms_category:catelog_name,
+//            //並利用Vo封裝傳遞給前端
+//            AttrRespVo attrRespVo = new AttrRespVo();
+//            //將AttrEntity中的值全部複製給Attr2Vo
+//            BeanUtils.copyProperties(attrEntity, attrRespVo);
+//            //1、根據catelogId獲取pms_category:catelog_name,並賦值給vo中的catelogName屬性
+//            CategoryEntity categoryEntity = categoryDao.selectById(attrEntity.getCatelogId());
+////            if (categoryEntity != null) {
+//                attrRespVo.setCatelogName(categoryEntity.getName());
+////            }
+//            log.info("categoryEntity:{}",categoryEntity);
+//            //2.1、根據attrId查詢attr_group_id
+//            //若是base(規則參數的話需要設定所屬分組),若是sale的話沒有所屬分組因此不需要設置
+//            if (attrType.equalsIgnoreCase("base")) {
+//                LambdaQueryWrapper<AttrAttrgroupRelationEntity> relationWrapper = new LambdaQueryWrapper<>();
+//                relationWrapper.eq(AttrAttrgroupRelationEntity::getAttrId, attrEntity.getAttrId());
+//                AttrAttrgroupRelationEntity attrGroupId = attrAttrgroupRelationDao.selectOne(relationWrapper);
+//                log.info("attrGroupId:{}",attrGroupId);
+////                if (attrGroupId != null && attrGroupId.getAttrId()!=null) {
+//                    //2.2再根據attr_group_id查詢attr_group_name
+//                    LambdaQueryWrapper<AttrGroupEntity> attrGroupWrapper = new LambdaQueryWrapper<>();
+//                    attrGroupWrapper.eq(AttrGroupEntity::getAttrGroupId, attrGroupId.getAttrGroupId());
+//                    AttrGroupEntity attrGroupEntity = attrGroupDao.selectOne(attrGroupWrapper);
+//                    log.info("attrGroupEntity:{}",attrGroupEntity);
+//                    attrRespVo.setAttrGroupName(attrGroupEntity.getAttrGroupName());
+////                }
+//            }
+//            return attrRespVo;
+//        })).collect(Collectors.toList());
+        log.info("respVoList:{}",respVoList);
         //重新設置PageUtils的List
         pageUtils.setList(respVoList);
         log.info("PageUtils:{}", pageUtils);
@@ -181,7 +223,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<AttrEntity> page = this.page(
-                new Query<AttrEntity>().getPage(params),
+                new Query<AttrEntity>().getPage(params,"attr_id",true),
                 new QueryWrapper<AttrEntity>()
         );
 

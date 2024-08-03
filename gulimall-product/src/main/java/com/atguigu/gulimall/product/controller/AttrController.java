@@ -5,12 +5,9 @@ import java.util.Map;
 
 import com.atguigu.gulimall.product.vo.AttrRespVo;
 import com.atguigu.gulimall.product.vo.AttrVo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.atguigu.gulimall.product.entity.AttrEntity;
 import com.atguigu.gulimall.product.service.AttrService;
@@ -26,11 +23,24 @@ import com.atguigu.common.utils.R;
  * @email passerby064857@gmail.com
  * @date 2024-07-23 21:10:02
  */
+@Slf4j
 @RestController
 @RequestMapping("product/attr")
 public class AttrController {
     @Autowired
     private AttrService attrService;
+
+    /**
+     * 列表,獲取所有屬性,規則參數+銷售屬性
+     */
+    @GetMapping("/list")
+    public R listAllAttr(Map<String,Object> params){
+        log.info("params:{}",params);
+        PageUtils pageUtils = attrService.queryPage(params);
+
+        log.info("pageUtils:{}",pageUtils);
+        return R.ok().put("page",pageUtils);
+    }
 
     /**
      * 列表
@@ -41,6 +51,7 @@ public class AttrController {
 
     @RequestMapping("/{attrType}/list/{catelogId}")
     public R list(@RequestParam Map<String, Object> params,@PathVariable("catelogId") Long catelogId,@PathVariable("attrType") String attrType){
+        log.info("params:{},catelogId:{},attrType:{}",params, catelogId,attrType);
         PageUtils page = attrService.queryPage(params,catelogId,attrType);
 
         return R.ok().put("page", page);

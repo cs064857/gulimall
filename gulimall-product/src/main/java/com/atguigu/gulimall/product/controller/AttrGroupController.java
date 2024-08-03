@@ -4,9 +4,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import com.atguigu.gulimall.product.dto.AttrGroupRelationDto;
+import com.atguigu.gulimall.product.entity.AttrAttrgroupRelationEntity;
 import com.atguigu.gulimall.product.entity.AttrEntity;
 import com.atguigu.gulimall.product.service.impl.CategoryServiceImpl;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -35,12 +36,30 @@ public class AttrGroupController {
     private CategoryServiceImpl categoryService;
 
 
+//    /**
+//     * 新增關聯時回顯attr數據,分頁
+//     */
+//    @GetMapping("/{attrGroupId}/noattr/relation")
+//    public R listRelationPage(@PathVariable("attrGroupId") Long attrGroupId,@RequestParam Map<String,Object> params){
+//        log.info("attrGroupId:{},params:{}",attrGroupId,params);
+//        PageUtils page =attrGroupService.queryPage(attrGroupId,params);
+//        return R.ok().put("page",page);
+//    }
+    /**
+     * 新增 屬性分組(attrgroup)與屬性(attr)關聯分類
+     */
+    @PostMapping("/attr/relation")
+    public R saveReletion(@RequestBody List<AttrAttrgroupRelationEntity> attrAttrgroupRelationEntity){
+        log.info("attrAttrgroupRelationEntity:{}",attrAttrgroupRelationEntity);
+        attrGroupService.saveReletion(attrAttrgroupRelationEntity);
+        return null;
+    }
 
     /**
      * 列表 屬性分組(attrgroup)與屬性(attr)關聯分類
      */
     @GetMapping("/{attrGroupId}/attr/relation")
-    public R getRelationList(@PathVariable("attrGroupId") Long attrGroupId){
+    public R listReletion(@PathVariable("attrGroupId") Long attrGroupId){
         log.info("路徑/{attrGroupId}/attr/relation,參數:attrGroupId:{}",attrGroupId);
         List<AttrEntity> attrEntity =attrGroupService.getAttrRelationList(attrGroupId);
         return R.ok().put("data",attrEntity);
@@ -91,12 +110,19 @@ public class AttrGroupController {
     }
 
     /**
-     * 删除
+     * 删除屬性分組與屬性關聯關係
      */
-    @RequestMapping("/delete")
-    public R delete(@RequestBody Long[] attrGroupIds){
-		attrGroupService.removeByIds(Arrays.asList(attrGroupIds));
+    @RequestMapping("/attr/relation/delete")
+    public R deleteRelation(@RequestBody List<AttrGroupRelationDto> attrGroupRelationDto){
+        log.info("attrDto:{}", attrGroupRelationDto);
+		attrGroupService.removeRelation(attrGroupRelationDto);
 
+        return R.ok();
+    }
+    @PostMapping("/delete")
+    public R deleteAttrGroup(@RequestBody Long[] attrGroupId){
+        log.info("/delete:attrGroupId:{}",attrGroupId);
+        attrGroupService.removeByIds(Arrays.asList(attrGroupId));
         return R.ok();
     }
 
