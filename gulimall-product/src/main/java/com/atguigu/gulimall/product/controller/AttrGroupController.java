@@ -8,6 +8,7 @@ import com.atguigu.gulimall.product.dto.AttrGroupRelationDto;
 import com.atguigu.gulimall.product.entity.AttrAttrgroupRelationEntity;
 import com.atguigu.gulimall.product.entity.AttrEntity;
 import com.atguigu.gulimall.product.service.impl.CategoryServiceImpl;
+import com.atguigu.gulimall.product.vo.AttrGroupWithAttrsVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -35,16 +36,16 @@ public class AttrGroupController {
     @Autowired
     private CategoryServiceImpl categoryService;
 
+    /**
+     * 添加商品時第二步規格參數回顯
+     */
+    @GetMapping("/{catelogId}/withattr")
+    public R getAttrGroupWithAttrs(@PathVariable("catelogId") Long catelogId){
+        List<AttrGroupWithAttrsVo> attrGroupWithAttrsVos= attrGroupService.getAttrGroupWithAttrs(catelogId);
+            return R.ok().put("data",attrGroupWithAttrsVos);
+    }
 
-//    /**
-//     * 新增關聯時回顯attr數據,分頁
-//     */
-//    @GetMapping("/{attrGroupId}/noattr/relation")
-//    public R listRelationPage(@PathVariable("attrGroupId") Long attrGroupId,@RequestParam Map<String,Object> params){
-//        log.info("attrGroupId:{},params:{}",attrGroupId,params);
-//        PageUtils page =attrGroupService.queryPage(attrGroupId,params);
-//        return R.ok().put("page",page);
-//    }
+
     /**
      * 新增 屬性分組(attrgroup)與屬性(attr)關聯分類
      */
@@ -122,7 +123,7 @@ public class AttrGroupController {
     @PostMapping("/delete")
     public R deleteAttrGroup(@RequestBody Long[] attrGroupId){
         log.info("/delete:attrGroupId:{}",attrGroupId);
-        attrGroupService.removeByIds(Arrays.asList(attrGroupId));
+        attrGroupService.removeAttrGroup(attrGroupId);
         return R.ok();
     }
 

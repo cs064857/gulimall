@@ -3,7 +3,10 @@ package com.atguigu.gulimall.product.controller;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import com.atguigu.gulimall.product.entity.BrandEntity;
+import com.atguigu.gulimall.product.vo.BrandVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +31,28 @@ import com.atguigu.common.utils.R;
 public class CategoryBrandRelationController {
     @Autowired
     private CategoryBrandRelationService categoryBrandRelationService;
+
+
+    /**
+     * 獲取分類關聯品牌
+     */
+    @GetMapping("/brands/list")
+    public R relationBrandsList(@RequestParam(value = "catId",required = true)Long catId){
+        List<BrandEntity> brandEntities=categoryBrandRelationService.getBrandsBycatId(catId);
+        log.info("brandEntities:{}",brandEntities);
+        //封裝成BrandVo數據
+        List<BrandVo> brandVos = brandEntities.stream().map(brandEntity -> {
+            BrandVo brandVo = new BrandVo();
+            brandVo.setBrandName(brandEntity.getName());
+            brandVo.setBrandId(brandEntity.getBrandId());
+            return brandVo;
+        }).collect(Collectors.toList());
+        log.info("brandVos:{}",brandVos);
+
+        return R.ok().put("data",brandVos);
+    }
+
+
 
     /**
      * 列表

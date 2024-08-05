@@ -7,11 +7,15 @@ import com.atguigu.gulimall.product.entity.AttrAttrgroupRelationEntity;
 import com.atguigu.gulimall.product.entity.AttrEntity;
 import com.atguigu.gulimall.product.service.AttrAttrgroupRelationService;
 import com.atguigu.gulimall.product.service.AttrService;
+import com.atguigu.gulimall.product.vo.AttrGroupWithAttrsVo;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -25,6 +29,7 @@ import com.atguigu.common.utils.Query;
 import com.atguigu.gulimall.product.dao.AttrGroupDao;
 import com.atguigu.gulimall.product.entity.AttrGroupEntity;
 import com.atguigu.gulimall.product.service.AttrGroupService;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 @Slf4j
@@ -38,9 +43,67 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
     private AttrService attrService;
     @Autowired
     private AttrAttrgroupRelationService attrAttrgroupRelationService;
+    @Autowired
+    private AttrGroupDao attrGroupDao;
+
+    @Override
+    public List<AttrGroupWithAttrsVo> getAttrGroupWithAttrs(Long catelogId) {
+        //根據catelogId從pms_attr_group表中獲得attrGroupEntity數據
+        List<AttrGroupEntity> attrGroupEntities = this.list(new LambdaQueryWrapper<AttrGroupEntity>()
+                .eq(AttrGroupEntity::getCatelogId, catelogId));
+
+        List<AttrGroupWithAttrsVo> attrGroupWithAttrsVos = attrGroupEntities.stream().map(attrGroupEntity -> {
+            log.info("attrGroupEntity.getAttrGroupId:{}",attrGroupEntity.getAttrGroupId());
+            //封裝成AttrGroupWithAttrsVo
+            AttrGroupWithAttrsVo attrGroupWithAttrsVo = new AttrGroupWithAttrsVo();
+            BeanUtils.copyProperties(attrGroupEntity, attrGroupWithAttrsVo);
+            //根據attrGroupEntites中的attrGroupIds查詢pms_attr_attrgroup_relation表中的attrIds數據
+            List<Object> attrIds = attrAttrgroupRelationService.listObjs(new LambdaQueryWrapper<AttrAttrgroupRelationEntity>()
+                    .select(AttrAttrgroupRelationEntity::getAttrId)
+                    .eq(AttrAttrgroupRelationEntity::getAttrGroupId, attrGroupEntity.getAttrGroupId()));
+            log.info("attrIds:{}",attrIds);
+            //根據attrIds數據查詢pms_attr中的所有attr屬性
+            List<AttrEntity> attrs = attrDao.selectList(new LambdaQueryWrapper<AttrEntity>()
+                    .in(AttrEntity::getAttrId, attrIds));
+            log.info("attrs:{}",attrs);
+
+            //根據catelogId從pms_attr表中獲取attrGroup的attr屬性列表
+//            List<AttrEntity> attrEntities = attrDao.selectList(new LambdaQueryWrapper<AttrEntity>()
+//                    .eq(AttrEntity::getCatelogId, catelogId));
+
+//            List<Object> attrIds = attrDao.selectObjs(new LambdaQueryWrapper<AttrEntity>()
+//                    .select(AttrEntity::getAttrId)
+//                    .eq(AttrEntity::getCatelogId, catelogId));
+
+//            List<Object> attr_id = attrAttrgroupRelationService.listObjs(new LambdaQueryWrapper<AttrAttrgroupRelationEntity>().eq(AttrAttrgroupRelationEntity::getAttrGroupId,attrIds));
+
+
+
+
+
+
+//            List<AttrEntity> attrEntities = attrDao.selectList(new LambdaQueryWrapper<AttrEntity>()
+//                    .eq(AttrEntity::getCatelogId, catelogId));
+
+            attrGroupWithAttrsVo.setAttrs(attrs);
+            log.info("attrGroupWithAttrsVo:{}",attrGroupWithAttrsVo);
+            return attrGroupWithAttrsVo;
+        }).collect(Collectors.toList());
+        return attrGroupWithAttrsVos;
+    }
+
+    @Transactional
+    @Override
+    public void removeAttrGroup(Long[] attrGroupId) {
+        //刪除屬性分組數據
+        this.removeByIds(Arrays.asList(attrGroupId));
+        //關聯表數據
+        attrgroupRelationDao.delete(new LambdaQueryWrapper<AttrAttrgroupRelationEntity>()
+                .in(AttrAttrgroupRelationEntity::getAttrGroupId,attrGroupId));
+    }
+
     @Override
     public void saveReletion(List<AttrAttrgroupRelationEntity> attrAttrgroupRelationEntity) {
-
         attrAttrgroupRelationService.saveBatch(attrAttrgroupRelationEntity);
     }
 

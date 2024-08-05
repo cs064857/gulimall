@@ -1,13 +1,19 @@
 package com.atguigu.gulimall.member;
 
-import org.testng.annotations.Test;
+
+import org.junit.jupiter.api.Test;
+
+
+
 import org.springframework.boot.test.context.SpringBootTest;
 
+
 @SpringBootTest
-class GulimallMemberApplicationTests {
+public class GulimallMemberApplicationTests {
 
     @Test
-    void contextLoads() {
+    public void contextLoads() {
+
     }
 
 }

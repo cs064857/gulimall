@@ -2,7 +2,7 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: 127.0.0.1:8848
+        server-addr: 192.168.91.131:8848
     gateway:
       # 網關全局跨域配置
       globalcors:
@@ -19,6 +19,13 @@ spring:
           uri: https://github.com/
           predicates:
             - Query=url,github'
+
+        - id: member_route
+          uri: lb://gulimall-member
+          predicates:
+            - Path=/api/member/**
+          filters:
+            - RewritePath=/api/?(?<segment>.*), /$\{segment}
 
         - id: third_party_route
           uri: lb://gulimall-third-party
